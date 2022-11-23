@@ -8,6 +8,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     long countByLoginContainingIgnoreCase(String login);
 
-    User findByLoginAndSenha(String login, String password);
+    User findByLogin(String login);
 
 }

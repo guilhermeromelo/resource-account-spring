@@ -1,5 +1,6 @@
 package resourceAccount.controller;
 
+import com.sun.net.httpserver.Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,37 +11,36 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-import resourceAccount.dto.LoginDTO;
 import resourceAccount.dto.UpdateUserEmailDTO;
 import resourceAccount.model.User;
 import resourceAccount.response.ResponseHandler;
-import resourceAccount.service.UserService;
+import resourceAccount.shared.JwtUtils;
+import resourceAccount.validation.service.UserService;
 
 import javax.validation.Valid;
+import java.util.Base64;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @RestController
 @RequestMapping("private/user")
 public class UserControllerPrivate {
-
     private static final Logger logger = LoggerFactory.getLogger(UserControllerPrivate.class);
     @Autowired
     private UserService userService;
 
-    @GetMapping("/list")
-    public List<User> listUsers(){
-        return userService.list();
-    }
-
-
-    @PostMapping("/login")
-    public ResponseEntity login(@RequestBody LoginDTO login, BindingResult result, UriComponentsBuilder uriBuilder) {
-        User user = this.userService.findByLoginAndPassword(login.getLogin(), login.getPassword());
+        @GetMapping("/getOwnUserData")
+    public ResponseEntity getOwnUserData(@RequestHeader LinkedHashMap<String,String> headers) {
+        String jwtToken = headers.get("authorization");
+        String userLogin = JwtUtils.getUserLoginFromJwtToken(jwtToken);
+        User user = userService.getByLogin(userLogin);
         ResponseEntity response = user != null ?
                 ResponseHandler.generateResponse("Usuário Logado!", HttpStatus.OK, user)
                 : ResponseHandler.generateResponse("Usuário não encontrado!", HttpStatus.BAD_REQUEST, null);
         return response;
     }
+
+
 
     @PutMapping("/update-email")
     public ResponseEntity updateUserEmail(@RequestBody @Valid UpdateUserEmailDTO updateUserEmailDTO, BindingResult result) {

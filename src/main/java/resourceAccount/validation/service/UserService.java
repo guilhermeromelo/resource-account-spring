@@ -1,4 +1,4 @@
-package resourceAccount.service;
+package resourceAccount.validation.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,11 +26,8 @@ public class UserService {
     }
 
     @Transactional
-    public List<User> list() { return userRepository.findAll(); }
-
-    @Transactional
-    public User findByLoginAndPassword(String login, String password){
-        return userRepository.findByLoginAndSenha(login,password);
+    public User getByLogin(String login){
+        return userRepository.findByLogin(login);
     }
 
     @Transactional
